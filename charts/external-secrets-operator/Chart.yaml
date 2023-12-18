@@ -1,0 +1,11 @@
+apiVersion: v2
+name: external-secrets
+description: A custom External Secrets deployment. It is used in order to deploy External Secrets and Cluster-Secret Store alongside the main Chart
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+dependencies:
+- name: external-secrets
+  version: 0.9.9
+  repository: https://charts.external-secrets.io

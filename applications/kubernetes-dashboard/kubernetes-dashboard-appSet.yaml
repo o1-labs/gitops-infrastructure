@@ -1,0 +1,37 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kubernetes-dashboard
+spec:
+  goTemplate: true
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          kubernetes-dashboard: enabled
+  template:
+    metadata:
+      name: '{{.name}}-kubernetes-dashboard'
+      labels:
+        cluster: '{{.name}}'
+        app: kubernetes-dashboard
+    spec:
+      project: default
+      info:
+      - name: "Kubernetes Dashboard:"
+        value: "General Purpose Web IP for Kubernetes."
+      sources:
+      - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+        targetRevision: lsanabria/bootstrap
+        path: "charts/kubernetes-dashboard"
+        helm:
+          releaseName: kubernetes-dashboard
+          valueFiles:
+          - values.yaml
+          - $otherValues/platform/{{.name}}/kubernetes-dashboard/values.yaml
+      - ref: otherValues
+        repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+        targetRevision: lsanabria/bootstrap
+      destination:
+        server: '{{.server}}'
+        namespace: kubernetes-dashboard

@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: external-dns
+spec:
+  goTemplate: true
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          external-dns: enabled
+  template:
+    metadata:
+      name: '{{.name}}-external-dns'
+      labels:
+        cluster: '{{.name}}'
+        app: external-dns
+    spec:
+      project: default
+      info:
+      - name: "External DNS Controller:"
+        value: "Acts as proxy to a Cloud DNS Servers, enabling Domain registration via annotations to Kubernetes Services/Ingress"
+      sources:
+      - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+        targetRevision: lsanabria/bootstrap
+        path: "charts/external-dns"
+        helm:
+          releaseName: external-dns
+          # these values have top precedence
+          values: |
+            external-dns:
+              commonLabels:
+                o1labs.org/gcp-cluster: {{.name}}
+          valueFiles:
+          - values.yaml
+          - $otherValues/platform/{{.name}}/external-dns/values.yaml
+      - ref: otherValues
+        repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+        targetRevision: lsanabria/bootstrap
+      destination:
+        server: '{{.server}}'
+        namespace: external-dns-operator

@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-seeder
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  labels:
+    category: seeder
+    tool: kubectl
+spec:
+  project: default
+  info:
+  - name: "ArgoCD Application Seeder"
+    value: "Installs ArgoCD Applications from a specific folder in Mina repo"
+  sources:
+  - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
+    targetRevision: lsanabria/bootstrap
+    path: "applications/argo-cd"
+  - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
+    targetRevision: lsanabria/bootstrap
+    path: "applications/external-secrets"
+  - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
+    targetRevision: lsanabria/bootstrap
+    path: "applications/external-dns"
+  - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
+    targetRevision: lsanabria/bootstrap
+    path: "applications/kubernetes-dashboard"
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd

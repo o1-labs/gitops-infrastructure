@@ -1,0 +1,5 @@
+kubernetes-dashboard:
+  service:
+    type: LoadBalancer
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: "buildkite-infra-central1.gcp.o1test.net"

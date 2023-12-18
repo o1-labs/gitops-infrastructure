@@ -1,0 +1,51 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: in-cluster
+  namespace: argocd
+  labels:
+    kubernetes-dashboard: enabled
+    external-dns: enabled
+    external-secrets-operator: enabled
+    argocd.argoproj.io/secret-type: cluster
+stringData:
+  name: in-cluster
+  server: https://kubernetes.default.svc
+  config: |
+    {
+      "tlsClientConfig": {
+        "insecure": false
+      }
+    }
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: buildkite-infra-central1
+  namespace: argocd
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: gcp-store
+  target:
+    creationPolicy: Owner
+    deletionPolicy: Retain
+    name: buildkite-infra-central1
+    template:
+      engineVersion: v2
+      metadata:
+        labels:
+          argocd.argoproj.io/secret-type: cluster
+          kubernetes-dashboard: enabled
+          # external-dns: enabled # nodes not configured for workload identity
+      data:
+        name: "{{ `{{ .name }}` }}"
+        server: "{{ `{{ .server }}` }}"
+        config: |
+          {{ `{{ .config }}` }}
+  dataFrom:
+    - extract:
+        key: argoCdBuidlkiteInfraCentral # multi-key gcp json secret
+      
