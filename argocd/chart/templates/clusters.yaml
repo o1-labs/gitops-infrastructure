@@ -5,9 +5,11 @@ metadata:
   name: in-cluster
   namespace: argocd
   labels:
-    kubernetes-dashboard: enabled
-    external-dns: enabled
-    external-secrets-operator: enabled
+    # argocd.argoproj.io/secret-type: cluster # add this to any new cluster Secret
+    app.o1labs.org/kubernetes-dashboard: enabled
+    app.o1labs.org/external-dns: enabled
+    app.o1labs.org/external-secrets-operator: enabled
+    app.o1labs.org/kube-prometheus: enabled
     argocd.argoproj.io/secret-type: cluster
 stringData:
   name: in-cluster
@@ -38,8 +40,8 @@ spec:
       metadata:
         labels:
           argocd.argoproj.io/secret-type: cluster
-          kubernetes-dashboard: enabled
-          # external-dns: enabled # nodes not configured for workload identity
+          app.o1labs.org/kubernetes-dashboard: enabled
+          # app.o1labs.org/external-dns: enabled # nodes not configured for workload identity
       data:
         name: "{{ `{{ .name }}` }}"
         server: "{{ `{{ .server }}` }}"

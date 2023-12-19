@@ -8,24 +8,37 @@ metadata:
   labels:
     category: seeder
     tool: kubectl
+    app.o1labs.org/argocd: enabled
+    app.o1labs.org/external-secrets-operator: enabled
+    app.o1labs.org/kubernetes-dashboard: enabled
+    app.o1labs.org/external-dns: enabled
+    app.o1labs.org/kube-prometheus: enabled
 spec:
   project: default
   info:
   - name: "ArgoCD Application Seeder"
     value: "Installs ArgoCD Applications from a specific folder in Mina repo"
   sources:
+  # ArgoCD
   - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
     targetRevision: lsanabria/bootstrap
     path: "applications/argo-cd"
+  # External Secrets Operator
   - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
     targetRevision: lsanabria/bootstrap
     path: "applications/external-secrets"
+  # External DNS
   - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
     targetRevision: lsanabria/bootstrap
     path: "applications/external-dns"
+  # Kubernetes Dashboard
   - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
     targetRevision: lsanabria/bootstrap
     path: "applications/kubernetes-dashboard"
+  # Kube-prometheus stack
+  - repoURL: "git@github.com:o1-labs/gitops-infrastructure.git"
+    targetRevision: lsanabria/bootstrap
+    path: "applications/kube-prometheus"
   destination:
     server: "https://kubernetes.default.svc"
     namespace: argocd

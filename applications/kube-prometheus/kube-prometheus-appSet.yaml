@@ -1,37 +1,40 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: kubernetes-dashboard
+  name: kube-prometheus
 spec:
   goTemplate: true
   generators:
   - clusters:
       selector:
         matchLabels:
-          app.o1labs.org/kubernetes-dashboard: enabled
+          app.o1labs.org/kube-prometheus: enabled
   template:
     metadata:
-      name: '{{.name}}-kubernetes-dashboard'
+      name: '{{.name}}-kube-prometheus'
       labels:
         o1labs.org/cluster: '{{.name}}'
-        o1labs.org/app: kubernetes-dashboard
+        o1labs.org/app: kube-prometheus
     spec:
       project: default
       info:
-      - name: "Kubernetes Dashboard:"
-        value: "General Purpose Web IP for Kubernetes."
+      - name: "Kube-Prometheus Stack:"
+        value: "Bundle containing: Prometheus Operator, AlertManager and Prometheus."
       sources:
       - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
         targetRevision: lsanabria/bootstrap
-        path: "charts/kubernetes-dashboard"
+        path: "charts/kube-prometheus"
         helm:
-          releaseName: kubernetes-dashboard
+          releaseName: kube-prometheus
           valueFiles:
           - values.yaml
-          - $otherValues/platform/{{.name}}/kubernetes-dashboard/values.yaml
+          - $otherValues/platform/{{.name}}/kube-prometheus/values.yaml
       - ref: otherValues
         repoURL: git@github.com:o1-labs/gitops-infrastructure.git
         targetRevision: lsanabria/bootstrap
       destination:
         server: '{{.server}}'
-        namespace: kubernetes-dashboard
+        namespace: kube-prometheus
+      syncPolicy:
+        syncOptions:
+        - ServerSideApply=true

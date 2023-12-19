@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mina-default-testnet-app
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  labels:
+    o1labs.org/app: mina-default-testnet
+    o1labs.org/cluster: in-cluster
+spec:
+  project: default
+  info:
+  - name: "o1Labs Testnet:"
+    value: "Baseline Mina Testnet deployment"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mina-default-testnet
+  sources:
+  # Seed
+  - repoURL: git@github.com:MinaFoundation/helm-charts.git
+    targetRevision: main
+    path: mina-daemon
+    helm:
+      releaseName: seed-0
+      valueFiles:
+      - values.yaml
+      - $seed/platform/in-cluster/mina-default-testnet/seed.yaml
+  - ref: seed
+    repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+    targetRevision: lsanabria/bootstrap
+  # BP
+  - repoURL: git@github.com:MinaFoundation/helm-charts.git
+    targetRevision: main
+    path: mina-daemon
+    helm:
+      releaseName: block-producer-0
+      valueFiles:
+      - values.yaml
+      - $bp/platform/in-cluster/mina-default-testnet/block-producer-0.yaml
+  - ref: bp
+    repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+    targetRevision: lsanabria/bootstrap
+  # Archive
+  - repoURL: git@github.com:MinaFoundation/helm-charts.git
+    targetRevision: main
+    path: mina-archive
+    helm:
+      releaseName: archive-0
+      valueFiles:
+      - values.yaml
+      - $archive/platform/in-cluster/mina-default-testnet/archive-0.yaml
+  - ref: archive
+    repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+    targetRevision: lsanabria/bootstrap

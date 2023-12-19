@@ -8,13 +8,13 @@ spec:
   - clusters:
       selector:
         matchLabels:
-          external-dns: enabled
+          app.o1labs.org/external-dns: enabled
   template:
     metadata:
       name: '{{.name}}-external-dns'
       labels:
-        cluster: '{{.name}}'
-        app: external-dns
+        o1labs.org/cluster: '{{.name}}'
+        o1labs.org/app: external-dns
     spec:
       project: default
       info:
@@ -30,7 +30,7 @@ spec:
           values: |
             external-dns:
               commonLabels:
-                o1labs.org/gcp-cluster: {{.name}}
+                o1labs.org/cluster: {{.name}}
           valueFiles:
           - values.yaml
           - $otherValues/platform/{{.name}}/external-dns/values.yaml

@@ -20,3 +20,14 @@ metadata:
 stringData:
   type: git
   url: git@github.com:o1-labs/gitops-infrastructure.git
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: helm-charts
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  type: git
+  url: git@github.com:MinaFoundation/helm-charts.git

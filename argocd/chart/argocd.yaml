@@ -1,9 +1,12 @@
 argo-cd:
   applicationSet:
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: external-secrets-operator-acct@o1labs-192920.iam.gserviceaccount.com # previously configured workload identity binding
     resources:
       limits:
-        cpu: 100m
-        memory: 128Mi
+        cpu: 1
+        memory: 1Gi
       requests:
         cpu: 100m
         memory: 128Mi
@@ -14,15 +17,21 @@ argo-cd:
     server.disable.auth:
 
   controller:
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: external-secrets-operator-acct@o1labs-192920.iam.gserviceaccount.com # previously configured workload identity binding
     resources:
       limits:
-        cpu: 500m
-        memory: 512Mi
+        cpu: 2
+        memory: 2Gi
       requests:
         cpu: 250m
         memory: 256Mi
 
   dex:
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: external-secrets-operator-acct@o1labs-192920.iam.gserviceaccount.com # previously configured workload identity binding
     resources:
       limits:
         cpu: 50m
@@ -50,6 +59,9 @@ argo-cd:
         memory: 64Mi
 
   repoServer:
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: external-secrets-operator-acct@o1labs-192920.iam.gserviceaccount.com # previously configured workload identity binding
     env:
     ## allowing longer checkouts for e.g., mina repo
     - name: ARGOCD_EXEC_TIMEOUT
@@ -76,7 +88,11 @@ argo-cd:
       requests:
         cpu: 10m
         memory: 64Mi
+
   server:
+    serviceAccount:
+      annotations:
+        iam.gke.io/gcp-service-account: external-secrets-operator-acct@o1labs-192920.iam.gserviceaccount.com # previously configured workload identity binding
     ingress:
       enabled: false
     service:
