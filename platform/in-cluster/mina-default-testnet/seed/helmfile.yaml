@@ -1,0 +1,83 @@
+---
+environments:
+  default:
+    values:
+      - github:
+          accessToken: ref+gcpsecrets://o1labs-192920/argoCDGithubAccessToken#/token
+      - testnet:
+          name: mainnet
+          platform: staging
+          image: minaprotocol/mina-daemon:1.4.0-c980ba8-bullseye-mainnet
+          genesisLedgerURL: http://673156464838-mina-genesis-ledgers.s3-website-us-west-2.amazonaws.com/mainnet/genesis_ledger.json
+          peerListURL: https://storage.googleapis.com/seed-lists/mainnet_seeds.txt
+      - keys:
+          discoveryLibp2p: "secret" # ref+gcpsecrets://o1labs-192920/inClusterSeed0/libp2p
+          discoveryLibp2pPeerid: "secret" # ref+gcpsecrets://o1labs-192920/inClusterSeed0/libp2p.peerid
+          libp2pPassword: "secret" # ref+gcpsecrets://o1labs-192920/inClusterSeed0/libp2p-password
+          walletKey: "secret" # ref+gcpsecrets://o1labs-192920/inClusterSeed0/key
+          walletPassword: "secret" # ref+gcpsecrets://o1labs-192920/inClusterSeed0/key-password
+          walletPub: "secret" # ref+gcpsecrets://o1labs-192920/inClusterSeed0/key.pub
+---
+releases:
+- name: "{{ .Values.testnet.platform }}-{{ .Values.testnet.name }}-mina-seed-0"
+  namespace: "{{ .Values.testnet.name }}"
+  chart: git::https://git:{{ .Values.github.accessToken | fetchSecretValue }}@github.com/MinaFoundation/helm-charts.git@mina-daemon?ref=main
+  values:
+    - deployment:
+        testnet: {{ .Values.testnet.name }}
+        name: "{{ .Values.testnet.platform }}-{{ .Values.testnet.name }}-mina-seed-0"
+        image: {{ .Values.testnet.image }}
+        customEntrypoint:
+          enabled: true
+          entrypoint: mina
+        peerListURL: {{ .Values.testnet.peerListURL }}
+        genesisLedgerURL: {{ .Values.testnet.genesisLedgerURL }}
+    - podAnnotations:
+        argocd.argoproj.io/hook: PreSync
+        argocd.argoproj.io/sync-wave: "-1"
+    - node:
+        replicas: 0
+        name: seed-0
+        role: seed
+        daemonMode:
+          seed: true
+        exposeGraphql: true
+        logLevel: Info
+        fileLogLevel: Info
+        logSnarkWorkGossip: true
+        generateGenesisProof: true
+        logPrecomputedBlocks: true
+        metrics:
+          enabled: true
+        libp2pKeys:
+          enabled: true
+          legacy: true
+        walletKeys:
+          enabled: true
+        secrets:
+          libp2pPassword: {{ .Values.keys.libp2pPassword | quote }}
+          discoveryLibp2p: {{ .Values.keys.discoveryLibp2p | quote }}
+          discoveryLibp2pPeerid: {{ .Values.keys.discoveryLibp2pPeerid | quote }}
+          walletPassword: {{ .Values.keys.walletPassword | quote }}
+          walletKey: {{ .Values.keys.walletKey | quote }}
+          walletPub: {{ .Values.keys.walletPub | quote }}
+        archive:
+          enabled: true
+          address: "{{ .Values.testnet.platform }}-{{ .Values.testnet.name }}-mina-archive:3086"
+        extraEnvVars:
+          - name: RAYON_NUM_THREADS
+            value: "6"
+    - resources:
+        memoryRequest: 16Gi
+        cpuRequest: 8
+        ephemeralStorageRequest: 10Gi
+        memoryLimit: 16Gi
+        cpuLimit: 8
+        ephemeralStorageLimit: 10Gi
+    - healthcheck:
+        enabled: true
+    - service:
+        daemon:
+          type: LoadBalancer
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: seed-0-{{ .Values.testnet.platform }}-{{ .Values.testnet.name }}.gcp.o1test.net

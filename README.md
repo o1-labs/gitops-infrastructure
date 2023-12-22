@@ -26,6 +26,15 @@ The repository's structure is integral to our CD workflow. By leveraging tools l
 - **Automated Deployments**: Changes in the repository trigger automated deployment processes, ensuring that our infrastructure is always up-to-date with the latest configurations.
 - **Clarity and Consistency**: The logical separation of components within the repository makes it easier for team members to understand and contribute to different aspects of the infrastructure.
 - **Scalability**: The use of patterns like 'app of apps' and generators allows for scalable management of multiple applications and environments.
----
 
+## Note on `applications/mina-default-testnet`
+[This application](./applications/mina-default-testnet/mina-default-testnet-app.yaml) has multiple `sources`, each corresponding to a `seed`, `archive` and `block-producer` nodes' Helm Charts, respectively. These in turn are deployed using `helmfile`.
+
+These ArgoCD sources refer to `platform/in-cluster/mina-default-testnet/{seed,archive,block-producer}/helmfile.yaml`, which defines repositories, but more relevantly it is used to inject values from the cloud secret store using `helmfile-secrets` plugin.
+
+Relevantly, we have included ArgoCD `hook` and `sync-wave` values as to control the deployment sequence.
+
+**NOTE:** Mina daemon [`helm-charts`](https://github.com/MinaFoundation/helm-charts/tree/main) do not provide a template for injecting annotations in all resources. Therefore ArgoCD deployment waves only take effect wherever `.Values.podAnnotations` are used within each Chart.
+
+---
 This document is a living piece of our infrastructure; updates and improvements are welcomed and encouraged. For more detailed information on each component, refer to the respective directories within the repository.

@@ -1,0 +1,58 @@
+---
+repositories:
+- name: bitnami
+  url: https://charts.bitnami.com/bitnami
+
+environments:
+  default:
+    values:
+      - github:
+          accessToken: ref+gcpsecrets://o1labs-192920/argoCDGithubAccessToken#/token
+      - database:
+          username: "" # ref+gcpsecrets://o1labs-192920/inClusterArchive0#/database.username
+          password: "" # ref+gcpsecrets://o1labs-192920/inClusterArchive0#/database.password
+          database: archive_balances_migrated
+      - testnet:
+          name: mainnet
+          platform: staging
+          image: minaprotocol/mina-archive:1.4.0-c980ba8-bullseye
+          archiveName: mina-archive
+---
+releases:
+- name: "{{ .Values.testnet.platform }}-{{ .Values.testnet.name }}-{{ .Values.testnet.archiveName }}"
+  namespace: "{{ .Values.testnet.name }}"
+  chart: git::https://git:{{ .Values.github.accessToken | fetchSecretValue }}@github.com/MinaFoundation/helm-charts.git@mina-archive?ref=main
+  values:
+    - archive:
+        replicas: 0
+        testnet: {{ .Values.testnet.name }}
+        metrics:
+          enabled: true
+        initFromDump:
+          enabled: true
+        missingBlocksGuardian:
+          enabled: true
+        image: {{ .Values.testnet.image }}
+        enablePostgresDB: false
+        postgresHost: &host "{{ .Values.testnet.platform }}-{{ .Values.testnet.name }}-{{ .Values.testnet.archiveName }}.gcp.o1test.net"
+        service:
+          annotations:
+            external-dns.alpha.kubernetes.io/hostname: *host
+    - podAnnotations:
+        argocd.argoproj.io/hook: PreSync
+        argocd.argoproj.io/sync-wave: "1"
+    - postgresql:
+        auth:
+          username: {{ .Values.database.username }}
+          password: {{ .Values.database.password }}
+          database: {{ .Values.database.database }}
+        primary:
+          persistence:
+            enabled: true
+            storageClass: ssd-delete
+            size: 20Gi
+    - resource:
+        memoryRequest: 4Gi
+        cpuRequest: 2
+        memoryLimit: 4Gi
+        cpuLimit: 2

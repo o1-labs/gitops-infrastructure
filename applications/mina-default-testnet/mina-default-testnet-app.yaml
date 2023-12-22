@@ -12,43 +12,28 @@ spec:
   info:
   - name: "o1Labs Testnet:"
     value: "Baseline Mina Testnet deployment"
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc
     namespace: mina-default-testnet
   sources:
   # Seed
-  - repoURL: git@github.com:MinaFoundation/helm-charts.git
-    targetRevision: main
-    path: mina-daemon
-    helm:
-      releaseName: seed-0
-      valueFiles:
-      - values.yaml
-      - $seed/platform/in-cluster/mina-default-testnet/seed.yaml
-  - ref: seed
-    repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+  - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
     targetRevision: lsanabria/bootstrap
+    path: platform/in-cluster/mina-default-testnet/seed
+    plugin:
+      name: helmfile
   # BP
-  - repoURL: git@github.com:MinaFoundation/helm-charts.git
-    targetRevision: main
-    path: mina-daemon
-    helm:
-      releaseName: block-producer-0
-      valueFiles:
-      - values.yaml
-      - $bp/platform/in-cluster/mina-default-testnet/block-producer-0.yaml
-  - ref: bp
-    repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+  - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
     targetRevision: lsanabria/bootstrap
+    path: platform/in-cluster/mina-default-testnet/block-producer
+    plugin:
+      name: helmfile
   # Archive
-  - repoURL: git@github.com:MinaFoundation/helm-charts.git
-    targetRevision: main
-    path: mina-archive
-    helm:
-      releaseName: archive-0
-      valueFiles:
-      - values.yaml
-      - $archive/platform/in-cluster/mina-default-testnet/archive-0.yaml
-  - ref: archive
-    repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+  - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
     targetRevision: lsanabria/bootstrap
+    path: platform/in-cluster/mina-default-testnet/archive
+    plugin:
+      name: helmfile
