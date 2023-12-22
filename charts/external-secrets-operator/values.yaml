@@ -1,0 +1,28 @@
+# https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets
+external-secrets:
+  commonLabels:
+    o1labs.org/gcp-cluster: "local.cluster.local"
+
+  serviceMonitor:
+    enabled: false
+
+  serviceAccount:
+    create: false
+    # name: external-secrets
+    # annotations:
+    #   iam.gke.io/gcp-service-account: external-secrets-operator-acct@o1labs-192920.iam.gserviceaccount.com # previously configured workload identity binding
+
+  # nodeSelector:
+  #   iam.gke.io/gke-metadata-server-enabled: "true" # scheduling on nodes with workload identity enabled
+
+defaultClusterSecretStores:
+  enabled: false
+# name: gcp-store
+# projectID: o1labs-192920
+# auth:
+#   workloadIdentity:
+#     clusterLocation: northamerica-northeast1
+#     clusterName: mina-infra-canada
+#     serviceAccountRef:
+#       name: external-secrets
+#       namespace: external-secrets-operator

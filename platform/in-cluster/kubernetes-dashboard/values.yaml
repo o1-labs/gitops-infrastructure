@@ -1,0 +1,5 @@
+kubernetes-dashboard:
+  service:
+    type: LoadBalancer
+    annotations:
+      external-dns.alpha.kubernetes.io/hostname: infra-canada.gcp.o1test.net

@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-cd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  labels:
+    o1labs.org/app: argocd
+    o1labs.org/cluster: in-cluster
+spec:
+  project: default
+  info:
+  - name: "o1Labs Argo CD:"
+    value: "Application syncing ArgoCD"
+  source:
+    repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+    targetRevision: lsanabria/bootstrap
+    path: argocd/chart
+    helm:
+      releaseName: argocd
+      valueFiles:
+      - argocd.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd

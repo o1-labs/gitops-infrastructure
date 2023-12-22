@@ -1,0 +1,6 @@
+kube-prometheus:
+  prometheus:
+    service:
+      type: LoadBalancer
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: "prometheus-infra-canada.gcp.o1test.net"

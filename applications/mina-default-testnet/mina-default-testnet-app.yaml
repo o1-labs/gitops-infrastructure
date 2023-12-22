@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: mina-default-testnet-app
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+  labels:
+    o1labs.org/app: mina-default-testnet
+    o1labs.org/cluster: in-cluster
+spec:
+  project: default
+  info:
+  - name: "o1Labs Testnet:"
+    value: "Baseline Mina Testnet deployment"
+  syncPolicy:
+    syncOptions:
+    - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: mina-default-testnet
+  sources:
+  # Seed
+  - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+    targetRevision: lsanabria/bootstrap
+    path: platform/in-cluster/mina-default-testnet/seed
+    plugin:
+      name: helmfile
+  # BP
+  - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+    targetRevision: lsanabria/bootstrap
+    path: platform/in-cluster/mina-default-testnet/block-producer
+    plugin:
+      name: helmfile
+  # Archive
+  - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+    targetRevision: lsanabria/bootstrap
+    path: platform/in-cluster/mina-default-testnet/archive
+    plugin:
+      name: helmfile

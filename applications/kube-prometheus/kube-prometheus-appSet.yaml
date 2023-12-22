@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kube-prometheus
+spec:
+  goTemplate: true
+  generators:
+  - clusters:
+      selector:
+        matchLabels:
+          app.o1labs.org/kube-prometheus: enabled
+  template:
+    metadata:
+      name: '{{.name}}-kube-prometheus'
+      labels:
+        o1labs.org/cluster: '{{.name}}'
+        o1labs.org/app: kube-prometheus
+    spec:
+      project: default
+      info:
+      - name: "Kube-Prometheus Stack:"
+        value: "Bundle containing: Prometheus Operator, AlertManager and Prometheus."
+      sources:
+      - repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+        targetRevision: lsanabria/bootstrap
+        path: "charts/kube-prometheus"
+        helm:
+          releaseName: kube-prometheus
+          valueFiles:
+          - values.yaml
+          - $otherValues/platform/{{.name}}/kube-prometheus/values.yaml
+      - ref: otherValues
+        repoURL: git@github.com:o1-labs/gitops-infrastructure.git
+        targetRevision: lsanabria/bootstrap
+      destination:
+        server: '{{.server}}'
+        namespace: kube-prometheus
+      syncPolicy:
+        syncOptions:
+        - ServerSideApply=true

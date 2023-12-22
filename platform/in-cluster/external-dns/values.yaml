@@ -1,0 +1,21 @@
+external-dns:
+  dryRun: false
+  txtOwnerId: in-cluster
+  triggerLoopOnEvent: true
+  logLevel: debug
+  policy: sync
+  domainFilters:
+  - "gcp.o1test.net"
+  sources:
+  - service
+  - ingress
+  provider: google
+  google:
+    project: o1labs-192920
+  serviceAccount:
+    create: true
+    name: external-dns
+    annotations:
+      iam.gke.io/gcp-service-account: external-dns-operator@o1labs-192920.iam.gserviceaccount.com # previously configured workload identity binding
+  nodeSelector:
+    iam.gke.io/gke-metadata-server-enabled: "true" # scheduling on nodes with workload identity enabled

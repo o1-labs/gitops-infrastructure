@@ -1,0 +1,11 @@
+apiVersion: v2
+name: "external-dns"
+description: A custom External-DNS chart.
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+
+dependencies:
+- name: "external-dns"
+  repository: "https://charts.bitnami.com/bitnami"
+  version: 6.28.6
